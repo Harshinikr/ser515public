@@ -1,41 +1,57 @@
 import java.awt.*;
-class BarChart extends Panel
-{			   
-	private int		barWidth = 20;
-	private int		data[];
-	private String	dataLabels[];
-	private Color	dataColors[];
+import java.util.Vector;
 
-	public void paint(Graphics g)
-	{
-		setSize(200,250);
-		Image duke = Toolkit.getDefaultToolkit().getImage("duke2.gif");
-		g.drawImage(duke, 80, 10, this);
+@SuppressWarnings("serial")
+public class BarChart extends Canvas {
+    protected Vector<Integer> data = new Vector<>();
+    protected Vector<String> labels = new Vector<>();
+    protected Vector<Color> colors = new Vector<>();
 
-		for (int i = 0; i < data.length; i++)
-		{				  
-			int yposition = 100+i*barWidth;
+    public void setData(Vector<Integer> data) {
+        this.data = data;
+    }
 
-			g.setColor(dataColors[i]);
-			g.fillRect(100, yposition, data[i], barWidth);
+    public void setLabels(Vector<String> labels) {
+        this.labels = labels;
+    }
 
-			g.setColor(Color.black);
-			g.drawString(dataLabels[i], 20, yposition+10);
-		}
-	}
+    public void setColors(Vector<Color> colors) {
+        this.colors = colors;
+    }
 
-	public void setData(int dataValues[])
-	{
-		data = dataValues;
-	}
+    public void paint(Graphics g) {
+        if (data == null || data.size() == 0) {
+            g.drawString("No data available.", 50, 50);
+            return;
+        }
 
-	public void setLabels(String labels[])
-	{
-		dataLabels = labels;
-	}
+        int width = getWidth();
+        int height = getHeight();
+        int padding = 40;
+        int barWidth = (width - 2 * padding) / data.size();
+        int maxVal = 0;
 
-	public void setColors(Color colors[])
-	{
-		dataColors = colors;
-	}
+        for (int val : data) {
+            if (val > maxVal) maxVal = val;
+        }
+
+        int x = padding;
+        for (int i = 0; i < data.size(); i++) {
+            int value = data.get(i);
+            String label = labels.get(i);
+            Color color = colors.get(i);
+
+            int barHeight = (int)(((double)value / maxVal) * (height - 2 * padding));
+            int y = height - padding - barHeight;
+
+            g.setColor(color);
+            g.fillRect(x, y, barWidth - 10, barHeight);
+
+            g.setColor(Color.black);
+            g.drawRect(x, y, barWidth - 10, barHeight);
+            g.drawString(label, x + 5, height - 10);
+
+            x += barWidth;
+        }
+    }
 }
